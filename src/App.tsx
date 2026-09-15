@@ -5,6 +5,7 @@ import './App.css'
 
 const asset = (path: string) => `${import.meta.env.BASE_URL}${path}`
 const email = '905192391@qq.com'
+const phone = '13579496466'
 const github = 'https://github.com/waris644'
 
 const gifNames = ['hero-space-voyage-preview-eECLH3Yc.gif','hero-codenest-preview-Cgppc2qV.gif','hero-vex-ventures-preview-BczMFIiw.gif','hero-stellar-ai-v2-preview-DjvxjG3C.gif','hero-asme-preview-B_nGDnTP.gif','hero-transform-data-preview-Cx5OU29N.gif','hero-vitara-preview-Cjz2QYyU.gif','hero-terra-preview-BFjrCr7T.gif','hero-skyelite-preview-DHaZIgUv.gif','hero-aethera-preview-DknSlcTa.gif','hero-designpro-preview-D8c5_een.gif','hero-stellar-ai-preview-D3HL6bw1.gif','hero-xportfolio-preview-D4A8maiC.gif','hero-orbit-web3-preview-BXt4OttD.gif','hero-nexora-preview-cx5HmUgo.gif','hero-evr-ventures-preview-DZxeVFEX.gif','hero-planet-orbit-preview-DWAP8Z1P.gif','hero-new-era-preview-CocuDUm9.gif','hero-wealth-preview-B70idl_u.gif','hero-luminex-preview-CxOP7ce6.gif','hero-celestia-preview-0yO3jXO8.gif']
@@ -29,7 +30,41 @@ function FadeIn({ children, delay=0, duration=.7, x=0, y=30, as:Tag='div', class
   return <Component className={className} initial={{opacity:.92,x,y}} whileInView={{opacity:1,x:0,y:0}} viewport={{once:true,margin:'50px',amount:0}} transition={{delay,duration,ease:[.25,.1,.25,1]}}>{children}</Component>
 }
 
-function ContactButton(){ return <a href={`mailto:${email}`} className="contact-gradient inline-flex items-center gap-3 rounded-full px-8 py-3 text-xs font-medium uppercase tracking-[.18em] text-white transition-transform hover:scale-[1.03] sm:px-10 sm:py-3.5 sm:text-sm md:px-12 md:py-4 md:text-base">联系我 <Mail size={18}/></a> }
+function ContactButton({onOpen}:{onOpen:()=>void}){ return <button type="button" onClick={onOpen} aria-haspopup="dialog" className="contact-gradient inline-flex items-center gap-3 rounded-full px-8 py-3 text-xs font-medium uppercase tracking-[.18em] text-white transition-transform hover:scale-[1.03] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white sm:px-10 sm:py-3.5 sm:text-sm md:px-12 md:py-4 md:text-base">联系我 <Mail size={18}/></button> }
+
+function ContactDialog({onClose}:{onClose:()=>void}){
+  const dialogRef=useRef<HTMLElement>(null)
+  const previousFocus=useRef<HTMLElement|null>(null)
+  useEffect(()=>{
+    const previous=document.body.style.overflow
+    previousFocus.current=document.activeElement instanceof HTMLElement?document.activeElement:null
+    document.body.style.overflow='hidden'
+    dialogRef.current?.focus()
+    const handleKey=(event:KeyboardEvent)=>{
+      if(event.key==='Escape'){onClose();return}
+      if(event.key!=='Tab'||!dialogRef.current)return
+      const focusable=Array.from(dialogRef.current.querySelectorAll<HTMLElement>('button:not([disabled]), [tabindex]:not([tabindex="-1"])'))
+      if(!focusable.length){event.preventDefault();dialogRef.current.focus();return}
+      const first=focusable[0];const last=focusable[focusable.length-1]
+      if(event.shiftKey&&document.activeElement===first){event.preventDefault();last.focus()}
+      else if(!event.shiftKey&&document.activeElement===last){event.preventDefault();first.focus()}
+    }
+    addEventListener('keydown',handleKey)
+    return()=>{document.body.style.overflow=previous;removeEventListener('keydown',handleKey);previousFocus.current?.focus()}
+  },[onClose])
+
+  return <motion.div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/60 p-5" role="presentation" onMouseDown={onClose} initial={{opacity:0}} animate={{opacity:1}} exit={{opacity:0}} transition={{duration:.2}}>
+    <motion.section ref={dialogRef} tabIndex={-1} role="dialog" aria-modal="true" aria-labelledby="contact-dialog-title" onMouseDown={event=>event.stopPropagation()} className="contact-dialog-copy relative w-full max-w-[430px] rounded-[30px] border-2 border-[#DCCEF1] bg-white px-7 pb-8 pt-9 text-black shadow-[0_24px_70px_rgba(51,30,72,.24)] outline-none sm:px-9 sm:pb-10 sm:pt-11" initial={{y:18,scale:.97}} animate={{y:0,scale:1}} exit={{y:12,scale:.98}} transition={{duration:.28,ease:[.16,1,.3,1]}}>
+      <button type="button" onClick={onClose} aria-label="关闭联系方式" className="absolute right-4 top-4 flex h-9 w-9 items-center justify-center rounded-full bg-[#F1EAF9] text-[#4C385C] transition-colors hover:bg-[#E8DDF4] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#8E6FA8]"><X size={18}/></button>
+      <p className="mb-2 text-sm text-[#765C8E]">保持联系</p>
+      <h2 id="contact-dialog-title" className="text-3xl leading-tight sm:text-4xl">联系我</h2>
+      <dl className="mt-7 space-y-4">
+        <div className="rounded-2xl bg-[#FAF8FC] px-5 py-4"><dt className="text-sm text-[#765C8E]">邮箱</dt><dd className="mt-1 break-all text-lg text-black sm:text-xl">{email}</dd></div>
+        <div className="rounded-2xl bg-[#FAF8FC] px-5 py-4"><dt className="text-sm text-[#765C8E]">电话</dt><dd className="mt-1 text-lg text-black sm:text-xl">{phone}</dd></div>
+      </dl>
+    </motion.section>
+  </motion.div>
+}
 
 function Magnet({children}:{children:ReactNode}){
   const ref=useRef<HTMLDivElement>(null); const [pos,setPos]=useState({x:0,y:0})
@@ -37,11 +72,11 @@ function Magnet({children}:{children:ReactNode}){
   return <div ref={ref} onMouseMove={move} onMouseLeave={()=>setPos({x:0,y:0})} style={{transform:`translate3d(${pos.x}px,${pos.y}px,0)`,transition:pos.x||pos.y?'transform .3s ease-out':'transform .6s ease-in-out',willChange:'transform'}}>{children}</div>
 }
 
-function Hero(){ return <section className="relative flex h-screen min-h-[680px] flex-col overflow-x-clip px-6 md:px-10">
-  <FadeIn as="nav" y={-20} className="z-30 flex justify-between pt-6 text-sm font-medium uppercase tracking-wider md:pt-8 md:text-lg lg:text-[1.4rem]">{[['关于','#about'],['能力','#services'],['项目','#projects'],['联系',`mailto:${email}`]].map(([label,href])=><a key={label} className="transition-opacity hover:opacity-70" href={href}>{label}</a>)}</FadeIn>
+function Hero({onContact}:{onContact:()=>void}){ return <section className="relative flex h-screen min-h-[680px] flex-col overflow-x-clip px-6 md:px-10">
+  <FadeIn as="nav" y={-20} className="z-30 flex justify-between pt-6 text-sm font-medium uppercase tracking-wider md:pt-8 md:text-lg lg:text-[1.4rem]">{[['关于','#about'],['能力','#services'],['项目','#projects']].map(([label,href])=><a key={label} className="transition-opacity hover:opacity-70" href={href}>{label}</a>)}<button type="button" onClick={onContact} aria-haspopup="dialog" className="transition-opacity hover:opacity-70">联系</button></FadeIn>
   <FadeIn delay={.15} y={40} className="z-0 mt-6 overflow-hidden sm:mt-4 md:-mt-3"><h1 className="hero-heading w-full whitespace-nowrap text-[10.4vw] font-black uppercase leading-none tracking-tight sm:text-[12.2vw] md:text-[12.4vw] lg:text-[12.7vw]">Hi, i&apos;m waris</h1></FadeIn>
   <FadeIn delay={.6} y={30} className="avatar-mask absolute bottom-0 left-1/2 z-10 w-[300px] sm:w-[390px] md:w-[470px] lg:w-[540px]"><div className="-translate-x-1/2"><Magnet><img className="avatar-image w-full select-none" src={asset('images/waris-avatar.png')} alt="阿卜杜瓦日斯的Q版3D头像"/></Magnet></div></FadeIn>
-  <div className="relative z-20 mt-auto flex items-end justify-between gap-3 pb-7 sm:pb-8 md:pb-10"><FadeIn delay={.35} y={20}><p className="max-w-[155px] text-[clamp(.68rem,1.4vw,1.5rem)] font-light uppercase leading-snug tracking-wide sm:max-w-[240px] md:max-w-[290px]">一名专注玩法系统、实时交互与工程实现的游戏程序开发者</p></FadeIn><FadeIn delay={.5} y={20} className="shrink-0"><ContactButton/></FadeIn></div>
+  <div className="relative z-20 mt-auto flex items-end justify-between gap-3 pb-7 sm:pb-8 md:pb-10"><FadeIn delay={.35} y={20}><p className="max-w-[155px] text-[clamp(.68rem,1.4vw,1.5rem)] font-light uppercase leading-snug tracking-wide sm:max-w-[240px] md:max-w-[290px]">一名专注玩法系统、实时交互与工程实现的游戏程序开发者</p></FadeIn><FadeIn delay={.5} y={20} className="shrink-0"><ContactButton onOpen={onContact}/></FadeIn></div>
   </section> }
 
 function Marquee(){
@@ -54,7 +89,7 @@ function Marquee(){
 function AnimatedText({text}:{text:string}){ const ref=useRef<HTMLParagraphElement>(null); const {scrollYProgress}=useScroll({target:ref,offset:['start .8','end .2']}); return <p ref={ref} className="max-w-[620px] text-center text-[clamp(1rem,2vw,1.35rem)] font-medium leading-relaxed">{text.split('').map((v,i)=><Char key={i} value={v} index={i} total={text.length} progress={scrollYProgress}/>)}</p> }
 function Char({value,index,total,progress}:{value:string;index:number;total:number;progress:MotionValue<number>}){const opacity=useTransform(progress,[index/total,Math.min(1,index/total+.08)],[.2,1]);return <motion.span style={{opacity}}>{value}</motion.span>}
 
-function About(){ return <section id="about" className="relative flex min-h-screen items-center justify-center overflow-hidden px-5 py-20 sm:px-8 md:px-10">{decor.map(([url,classes,x,delay])=><FadeIn key={url} x={x} y={0} delay={delay} duration={.9} className={`absolute ${classes}`}><img src={url} alt=""/></FadeIn>)}<div className="relative z-10 flex flex-col items-center gap-10 sm:gap-14 md:gap-16"><FadeIn y={40}><h2 className="hero-heading text-center text-[clamp(3rem,12vw,160px)] font-black uppercase leading-none tracking-tight">关于我</h2></FadeIn><AnimatedText text="我是阿卜杜瓦日斯，南京大学通信工程本科生，正在把嵌入式、实时系统和通信经验迁移到游戏客户端开发。我关注数据驱动玩法、状态机、性能优化与可靠交互，希望让复杂系统最终变成清晰而有趣的玩家体验。"/><div className="pt-6 sm:pt-10 md:pt-12"><ContactButton/></div></div></section> }
+function About({onContact}:{onContact:()=>void}){ return <section id="about" className="relative flex min-h-screen items-center justify-center overflow-hidden px-5 py-20 sm:px-8 md:px-10">{decor.map(([url,classes,x,delay])=><FadeIn key={url} x={x} y={0} delay={delay} duration={.9} className={`absolute ${classes}`}><img src={url} alt=""/></FadeIn>)}<div className="relative z-10 flex flex-col items-center gap-10 sm:gap-14 md:gap-16"><FadeIn y={40}><h2 className="hero-heading text-center text-[clamp(3rem,12vw,160px)] font-black uppercase leading-none tracking-tight">关于我</h2></FadeIn><AnimatedText text="我是阿卜杜瓦日斯，南京大学通信工程本科生，正在把嵌入式、实时系统和通信经验迁移到游戏客户端开发。我关注数据驱动玩法、状态机、性能优化与可靠交互，希望让复杂系统最终变成清晰而有趣的玩家体验。"/><div className="pt-6 sm:pt-10 md:pt-12"><ContactButton onOpen={onContact}/></div></div></section> }
 
 const services=[
   ['C / C# 程序基础','能够使用 C 与 C# 完成模块拆分、数据结构设计、状态管理和基础面向对象实现。'],
@@ -157,5 +192,5 @@ function Projects(){const ref=useRef<HTMLElement>(null);const [active,setActive]
 
 function PortfolioCapture(){return <main className="min-h-screen bg-[#0C0C0C] px-4 py-8 text-[#0C0C0C] sm:px-8 md:px-12 md:py-12"><section className="mx-auto max-w-6xl overflow-hidden rounded-2xl bg-[#F7F7F7]"><header className="border-b border-black/15 px-6 py-8 sm:px-10 sm:py-10"><p className="mb-3 text-sm font-medium text-black/55">UNITY / GAMEPLAY · 最新进度</p><h1 className="max-w-4xl text-balance text-[clamp(2.5rem,6vw,5.5rem)] font-semibold leading-[1.02] tracking-[-.035em]">从零开始的庇护所生活</h1></header><ShelterDetail/><footer className="border-t border-black/15 px-6 py-7 text-sm text-black/50 sm:px-10">WARIS · GAME DEVELOPMENT PORTFOLIO · 2026.09.15</footer></section></main>}
 
-function App(){const capture=new URLSearchParams(window.location.search).get('capture');if(capture==='shelter')return <PortfolioCapture/>;return <main className="overflow-x-clip bg-[#0C0C0C]"><Hero/><Marquee/><About/><Services/><Projects/><footer id="contact" className="flex flex-col items-center gap-6 px-6 py-24 text-center"><p className="text-2xl font-medium uppercase sm:text-4xl">一起构建下一个可玩系统</p><div className="flex gap-5"><a aria-label="发送邮件" href={`mailto:${email}`}><Mail/></a><a aria-label="GitHub" href={github} target="_blank" rel="noreferrer"><Github/></a></div><small className="text-[#D7E2EA]/45">© 2026 WARIS · GAME DEVELOPMENT PORTFOLIO</small></footer></main>}
+function App(){const capture=new URLSearchParams(window.location.search).get('capture');const [contactOpen,setContactOpen]=useState(false);if(capture==='shelter')return <PortfolioCapture/>;const openContact=()=>setContactOpen(true);return <main className="overflow-x-clip bg-[#0C0C0C]"><Hero onContact={openContact}/><Marquee/><About onContact={openContact}/><Services/><Projects/><footer id="contact" className="flex flex-col items-center gap-6 px-6 py-24 text-center"><p className="text-2xl font-medium uppercase sm:text-4xl">一起构建下一个可玩系统</p><div className="flex gap-5"><button type="button" onClick={openContact} aria-label="查看联系方式" aria-haspopup="dialog"><Mail/></button><a aria-label="GitHub" href={github} target="_blank" rel="noreferrer"><Github/></a></div><small className="text-[#D7E2EA]/45">© 2026 WARIS · GAME DEVELOPMENT PORTFOLIO</small></footer><AnimatePresence>{contactOpen&&<ContactDialog onClose={()=>setContactOpen(false)}/>}</AnimatePresence></main>}
 export default App
