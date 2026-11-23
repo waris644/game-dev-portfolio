@@ -167,6 +167,13 @@ function Detail({ project, onExpand }: { project: CaseStudy; onExpand: (frame: F
             <p>{section.body}</p>
             {section.points && <ul>{section.points.map((point) => <li key={point}>{point}</li>)}</ul>}
             {section.frames && <Gallery frames={section.frames} onExpand={onExpand} />}
+            {section.notes?.map((note) => (
+              <section className="case-note" key={note.title}>
+                <h3>{note.title}</h3>
+                {note.paragraphs.map((paragraph) => <p key={paragraph}>{paragraph}</p>)}
+                {note.frames && <Gallery frames={note.frames} onExpand={onExpand} />}
+              </section>
+            ))}
           </section>
         ))}
         <a className="text-link case-return" href="#projects">返回所有项目 <ArrowRight size={16} /></a>

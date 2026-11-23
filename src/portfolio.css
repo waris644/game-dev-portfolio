@@ -92,6 +92,7 @@ h1:focus, h2:focus { outline: none; }
 .case-layout { display: grid; grid-template-columns: minmax(0, 11.5rem) minmax(0, 1fr); gap: clamp(1.5rem, 5vw, 5rem); padding-bottom: var(--space-3xl); }
 .case-nav { position: sticky; top: var(--space-lg); align-self: start; border-top: 1px solid var(--color-rule); padding-top: var(--space-md); }
 .case-nav h2 { font-size: 1rem; margin-bottom: var(--space-xs); }
+.case-nav-items { max-height: calc(100vh - 6rem); overflow-y: auto; }
 .case-nav button { display: block; width: 100%; min-height: 2.75rem; padding: .35rem .6rem; border: 0; border-radius: .45rem; background: transparent; color: var(--color-muted); text-align: left; white-space: nowrap; }
 .case-nav button:hover, .case-nav button[aria-current] { color: var(--color-accent); background: var(--color-panel); }
 .case-section { border-top: 1px solid var(--color-rule); padding-block: var(--space-xl) var(--space-2xl); scroll-margin-top: 1.5rem; }
@@ -99,6 +100,9 @@ h1:focus, h2:focus { outline: none; }
 .case-section p, .case-section ul { max-width: 42rem; color: var(--color-muted); }
 .case-section ul { padding-left: var(--space-lg); }
 .case-section li + li { margin-top: var(--space-xs); }
+.case-note { margin-top: var(--space-xl); padding-top: var(--space-lg); border-top: 1px solid var(--color-rule); }
+.case-note h3 { margin-bottom: var(--space-sm); font-size: clamp(1.15rem, 2.2vw, 1.45rem); }
+.case-note p + p { margin-top: var(--space-sm); }
 .gallery { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--space-xl) var(--space-md); margin-top: var(--space-lg); }
 .gallery-single { grid-template-columns: minmax(0, 40rem); }
 .frame-button { display: block; position: relative; width: 100%; border: 1px solid var(--color-rule); padding: 0; background: var(--color-photo-edge); border-radius: var(--radius-media); }
@@ -135,7 +139,7 @@ h1:focus, h2:focus { outline: none; }
   .feature-media { grid-row: 1; }
   .case-layout { grid-template-columns: minmax(0, 1fr); }
   .case-nav { position: static; }
-  .case-nav-items { display: flex; flex-wrap: wrap; gap: .25rem var(--space-xs); }
+  .case-nav-items { display: flex; flex-wrap: wrap; gap: .25rem var(--space-xs); max-height: none; overflow: visible; }
   .case-nav button { width: auto; min-height: 2.5rem; }
 }
 @media (max-width: 36rem) {
